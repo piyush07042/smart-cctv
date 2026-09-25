@@ -1,316 +1,69 @@
 # Architecture
 
-This document describes the logical layers and core components of the okdriver-cctv-platform.
+This document describes the architectural layout and data flow of the OKDriver CCTV Platform.
 
-## Logical Layers
+## 1. System Overview
+The OKDriver CCTV Platform is a 3-tier web application built to ingest, store, and act on intelligent video analytics metadata while serving live and recorded video streams securely. It connects edge inference systems (represented in demo environments by the Analytics Simulator) to operators through a real-time reactive dashboard.
 
-### 1. Sources Layer
-The origin of video streams.
-- **Video files:** Pre-recorded videos for testing.
-- **Webcam:** Live feed from a local camera.
-- **RTSP simulator:** Simulated IP cameras.
-- **ONVIF mock:** Simulated cameras with PTZ and metadata capabilities.
-- **Vendor API mock:** Simulated proprietary camera systems.
+## 2. Logical Architecture
+- **Frontend**: A React SPA running in the browser utilizing Vite, Zustand, and React Router. It securely polls REST API boundaries for historical state and listens on a WSS (WebSocket Secure) channel for real-time reactivity.
+- **Backend**: A horizontal fleet of FastAPI workers handling HTTP requests, business logic validations, and WebSocket lifecycle management.
+- **Database (PostgreSQL)**: The source of truth for persistent entities (Users, Cameras, Watchlists, Events, Alerts, Audit Logs).
+- **In-Memory Store (Redis)**: Orchestrates distributed states, specifically Rate Limiting metrics, JWT Revocation Deny-Lists, and internal Pub/Sub messaging for real-time WebSockets.
+- **Media Server (MediaMTX)**: Proxies RTSP and HLS streams.
 
-### 2. Ingestion / Media Layer
-Responsible for receiving and converting video streams for the web.
-- **Source adapters:** Interfaces to connect to various camera types.
-- **Media gateway:** Central point for stream management.
-- **MediaMTX:** RTSP/RTMP/HLS/WebRTC server.
-- **FFmpeg:** Video processing and transcoding.
-- **HLS/WebRTC playback:** Formats served to the frontend.
-- **Security Boundary:** The browser must NOT receive raw RTSP credentials. Stream credentials remain server-side.
+## 3. Component Responsibilities
+- **API Gateway (NGINX)**: Terminates TLS, proxies standard HTTP to FastAPI, proxies WS upgrades, and maps `/live` to MediaMTX.
+- **Auth Middleware**: Intercepts requests, decodes JWTs, checks the Redis Deny-List, and enforces strict RBAC scopes based on route annotations.
+- **Event Processor**: Receives POST payloads from analytics engines, normalizes properties (like plate casing), suppresses spam duplicates using an idempotency window, checks the Watchlist, and inserts records into PostgreSQL.
+- **Alert Engine**: Subscribes to positive Watchlist matches. Determines if a target is on cooldown. If not, generates an actionable `Alert` entity.
+- **Real-Time Gateway**: Receives signals from the Event Processor and Alert Engine via Redis Pub/Sub, wraps them in a standardized schema, and pushes them to authenticated WebSocket clients.
 
-### 3. Analytics Layer
-Processes video for intelligent events.
-- **Mock ANPR/analytics service:** Simulates AI detection.
-- **Detection event generation:** Creates structured event payloads.
-- **Future real AI model integration point:** Designed to seamlessly replace the mock service.
+## 4. Data Flow
+1. Edge Analytics POSTs to `/api/v1/events/`.
+2. Backend intercepts, verifies `X-Analytics-Key`.
+3. Event is validated and stored in PostgreSQL.
+4. An internal Redis Pub/Sub message broadcasts the event.
+5. All connected, authorized WebSocket clients receive the payload.
 
-### 4. Backend Layer
-The core business logic (FastAPI modules).
-- **Authentication:** JWT-based user login and RBAC.
-- **Camera registry:** CRUD operations for cameras.
-- **Camera health:** Monitoring camera status (online/offline).
-- **Events/detections:** Receiving and processing analytics events.
-- **Watchlist:** Managing lists of entities of interest.
-- **Alerts:** Generating notifications based on matches.
-- **Search:** Querying historical events.
-- **Vehicle/entity trace:** Tracking movement across cameras.
-- **Statistics:** Aggregated data for dashboard.
-- **Audit logs:** Tracking user actions.
+## 5. Video Flow
+1. Operator requests playback token via `/api/v1/cameras/{id}/playback`.
+2. Backend validates operator role and generates short-lived signed JWT.
+3. Operator's browser attempts to connect to MediaMTX with the token.
+4. (Simulated) MediaMTX serves the proxy stream directly.
 
-### 5. Messaging Layer
-Handles real-time communication and transient data (Redis).
-- **Pub/Sub:** Distributing events across instances.
-- **Event channel:** Real-time detections.
-- **Alert channel:** Real-time notifications.
-- **Camera health channel:** Real-time status updates.
-- **Deduplication keys:** Preventing duplicate event processing.
-- **Cache:** Storing frequently accessed data.
-- **Rate limiting:** API protection.
+## 6. Analytics Flow
+Edge Inference -> Event Schema Normalization -> Idempotency Filter -> Watchlist Evaluator -> Storage & Alert Generation.
 
-### 6. Data Layer
-Persistent storage (PostgreSQL).
-- **Users:** System administrators and operators.
-- **Cameras:** Metadata and configuration.
-- **Camera health/history:** Status logs.
-- **Detection events:** Stored ANPR data.
-- **Watchlist:** Target entities.
-- **Alerts:** Triggered notifications and their states.
-- **Audit logs:** System activity history.
+## 7. Alert Flow
+1. Event matches active Watchlist ID.
+2. Alert Engine verifies cooldown window.
+3. Alert is created as `NEW`.
+4. Push to WebSockets.
+5. Operator explicitly clicks `Acknowledge`.
+6. Operator explicitly resolves as `RESOLVED` or `FALSE_POSITIVE`.
+7. Every state transition is written to Audit Logs.
 
-### 7. Presentation Layer
-User interface (React dashboard).
-- **Dashboard:** Overview and statistics.
-- **Camera grid:** Live video monitoring.
-- **Camera registry:** Management interface.
-- **GIS/map:** Leaflet-based camera locations and traces.
-- **Alerts:** Notification center.
-- **Watchlist:** Management interface.
-- **Search:** Query tools.
-- **Vehicle trace:** Visualization of entity movement.
-- **Audit views:** Log inspection.
-
----
-
-## Architecture Diagram
-
-```mermaid
-graph TD
-    %% CCTV Sources Flow
-    subgraph Sources
-        cam1[Video Files]
-        cam2[Webcam]
-        cam3[RTSP Simulator]
-    end
-
-    subgraph "Ingestion / Media"
-        sa[Source Adapters]
-        mmtx[MediaMTX / FFmpeg]
-    end
-
-    subgraph Presentation
-        react[React Dashboard]
-    end
-
-    cam1 --> sa
-    cam2 --> sa
-    cam3 --> sa
-    sa --> mmtx
-    mmtx -- "HLS / WebRTC" --> react
-
-    %% Analytics and Event Flow
-    subgraph Analytics
-        mock[Mock AI / Analytics Service]
-    end
-
-    subgraph Backend
-        api[FastAPI Event API]
-        val[Validation]
-    end
-
-    subgraph Data
-        pg[(PostgreSQL)]
-        redis[(Redis)]
-    end
-    
-    subgraph Messaging
-        pubsub[Redis Pub/Sub]
-        ws[WebSocket Gateway]
-    end
-
-    mock --> api
-    api --> val
-    val -- "Check Deduplication" --> redis
-    redis -- "If New" --> pg
-    pg -- "Watchlist Match" --> pubsub
-    pubsub -- "Alert / Event" --> ws
-    ws --> react
-
-    %% Other components
-    auth[Authentication]
-    health[Camera Health Worker]
-    audit[Audit Service]
-    
-    api -.-> auth
-    health -.-> pg
-    health -.-> pubsub
-    api -.-> audit
+## 8. Real-Time Flow
+```text
+[Event Engine] --(Publish)--> [Redis] --(Subscribe)--> [WebSocket Worker] --(WSS)--> [React Client]
 ```
 
----
+## 9. Health Monitoring Flow
+1. Camera issues periodic heartbeats to `/api/v1/health/heartbeat`.
+2. Backend updates `last_heartbeat` and verifies FPS/Latency thresholds.
+3. If valid -> `ONLINE`.
+4. If missing optional metrics -> `DEGRADED`.
+5. Background task scans `last_heartbeat`. If `current_time - last_heartbeat > threshold` -> `OFFLINE`.
 
-## Core Event Flow
+## 10. Security Boundaries
+- Edge to Gateway: Required TLS.
+- Gateway to Backend: Internal Docker Network.
+- User to Gateway: Required TLS, validated JWT.
+- Tokens: Stored purely in-memory in Frontend, rotated periodically.
 
-1. Analytics service sends a detection event to FastAPI.
-2. FastAPI authenticates the analytics service.
-3. FastAPI validates the event schema.
-4. Backend computes an idempotency/deduplication key.
-5. Redis is checked for duplicate events.
-6. If duplicate, suppress the event.
-7. If new, persist the detection event in PostgreSQL.
-8. Normalize the vehicle number.
-9. Search the indexed watchlist.
-10. If a watchlist match exists, create an alert.
-11. Apply alert cooldown/deduplication.
-12. Publish the event to Redis Pub/Sub.
-13. Publish alert information to Redis Pub/Sub.
-14. WebSocket gateway pushes updates to connected operators.
-15. React dashboard updates without page refresh.
+## 11. Persistence
+PostgreSQL leverages SQLAlchemy ORM mapping. Critical indexes are established on Event Timestamps, Alert Statuses, and Watchlist plates for efficient search query boundaries.
 
-### Camera Health Flow
-
-```
-Camera/source
-    ↓
-Heartbeat
-    ↓
-FastAPI
-    ↓
-camera health state
-    ↓
-PostgreSQL
-    ↓
-Redis Pub/Sub
-    ↓
-WebSocket
-    ↓
-Dashboard
-```
-
-**Camera states:**
-- ONLINE
-- OFFLINE
-- DEGRADED
-
----
-
-## Adapter Design
-
-A common Source Adapter interface is used to abstract vendor-specific details.
-
-```
-SourceAdapter
-    ├── FileAdapter
-    ├── WebcamAdapter
-    ├── RTSPAdapter
-    ├── ONVIFAdapter
-    └── VendorApiAdapter
-```
-
-**Why adapters are needed:**
-Different camera vendors expose different protocols/interfaces. The rest of the backend should not depend directly on vendor-specific implementations, allowing for easy expansion and testing.
-
----
-
-## Security Design
-
-**Authentication:**
-- JWT
-
-**Authorization:**
-- Admin
-- Operator
-
-**Admin can:**
-- manage cameras
-- manage watchlist
-- view audit logs
-- manage system configuration
-
-**Operator can:**
-- view cameras
-- search entities
-- view alerts
-- acknowledge/resolve alerts according to permissions
-
-**Security rules:**
-- Never expose raw RTSP credentials to browser
-- Stream credentials remain server-side
-- Secrets stored through environment variables
-- .env must not be committed
-- .env.example contains only placeholders
-- Validate all API input
-- Rate limit sensitive APIs
-- Authenticate analytics service
-- Audit administrative actions
-- HTTPS/TLS in production
-
----
-
-## Future Scalability Blueprint
-
-*Note: These are estimates/planning assumptions for scaling to ~80,000 cameras.*
-
-**EDGE:**
-- camera-adjacent processing
-- stream pull
-- motion/ANPR pre-filtering
-- local buffering
-- send metadata/snapshots instead of every stream centrally
-
-**REGIONAL:**
-- city/district VMS
-- analytics clusters
-- regional database
-- short-term storage
-
-**CENTRAL:**
-- centralized registry
-- global watchlist
-- cross-region correlation
-- command dashboard
-- long-term archive
-
-**Future Technologies:**
-- Kafka for durable high-scale event streaming
-- Kubernetes for orchestration
-- Load balancing
-- Horizontal API scaling
-- WebSocket gateway scaling
-- PostgreSQL partitioning
-- Read replicas
-- ClickHouse/TimescaleDB possibility for time-series data
-- Object storage
-- Hot/warm/cold storage tiers
-- GPU/edge inference
-- Comprehensive monitoring
-- Disaster recovery
-
----
-
-## Future Repository Structure
-
-```
-okdriver-cctv-platform/
-│
-├── backend/
-│   ├── app/
-│   │   ├── api/
-│   │   ├── core/
-│   │   ├── models/
-│   │   ├── schemas/
-│   │   ├── services/
-│   │   ├── adapters/
-│   │   ├── realtime/
-│   │   ├── workers/
-│   │   └── main.py
-│   ├── alembic/
-│   ├── tests/
-│   ├── requirements.txt
-│   └── Dockerfile
-│
-├── frontend/
-│
-├── simulator/
-│
-├── media/
-│
-├── docs/
-│
-├── docker-compose.yml
-├── .env.example
-├── .gitignore
-└── README.md
-```
+## 12. Scalability Evolution
+See [Scalability](scalability.md) for future evolutions.

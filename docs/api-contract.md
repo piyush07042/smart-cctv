@@ -1,244 +1,91 @@
 # API Contract
 
-## AUTH
+This document outlines the exposed REST API routes available in the FastAPI backend. Full OpenAPI interactive documentation is available by running the application and navigating to `http://localhost:8000/docs`.
 
-### `POST /auth/login`
-- **Purpose**: Authenticate user and receive JWT.
-- **Auth**: None
-- **Role**: None
-- **Request Body**: `{"username": "...", "password": "..."}`
-- **Response**: `{"access_token": "...", "token_type": "bearer"}`
-- **Status Codes**: 200 OK, 401 Unauthorized
+## Authentication
+- `POST /auth/login`
+  - Purpose: Validates credentials and returns JWT Access and Refresh tokens.
+  - Role: ANY
+- `POST /auth/refresh`
+  - Purpose: Exchanges a valid refresh token for a new token pair.
+  - Role: ANY
+- `POST /auth/logout`
+  - Purpose: Puts the current JWT token on the Redis Deny-List.
+  - Role: ANY
+- `GET /auth/me`
+  - Purpose: Returns the currently authenticated user details.
+  - Role: ANY
 
-### `GET /auth/me`
-- **Purpose**: Get current user details.
-- **Auth**: Required
-- **Role**: Any
-- **Response**: User object (id, username, role)
-- **Status Codes**: 200 OK, 401 Unauthorized
+## Cameras
+- `GET /api/v1/cameras/`
+  - Purpose: Returns paginated list of cameras, optionally filtered by status.
+  - Role: VIEWER
+- `POST /api/v1/cameras/`
+  - Purpose: Creates a new camera entry.
+  - Role: ADMIN
+- `PUT /api/v1/cameras/{id}`
+  - Purpose: Updates a camera's name, coordinates, or credentials.
+  - Role: ADMIN
+- `GET /api/v1/cameras/{id}/playback`
+  - Purpose: Generates a signed, short-lived playback token for secure video access.
+  - Role: VIEWER
 
-## CAMERAS
+## Health
+- `POST /api/v1/health/heartbeat`
+  - Purpose: Camera edge node reports metrics (fps, latency).
+  - Auth: Authenticated Edge Device
 
-### `POST /cameras`
-- **Purpose**: Register a new camera.
-- **Auth**: Required
-- **Role**: Admin
-- **Request Body**: Camera details (name, location, stream URL, etc.)
-- **Response**: Created camera object
-- **Status Codes**: 201 Created, 400 Bad Request
+## Events
+- `POST /api/v1/events/`
+  - Purpose: Ingest an AI metadata payload.
+  - Auth: Edge `X-Analytics-Key` header.
+- `GET /api/v1/events/`
+  - Purpose: Retrieve paginated historical events.
+  - Role: VIEWER
 
-### `GET /cameras`
-- **Purpose**: List all cameras (with optional filtering).
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: List of camera objects
-- **Status Codes**: 200 OK
+## Watchlist
+- `GET /api/v1/watchlist/`
+  - Purpose: Retrieve active target plates.
+  - Role: VIEWER
+- `POST /api/v1/watchlist/`
+  - Purpose: Create a new watchlist entry.
+  - Role: ADMIN
+- `POST /api/v1/watchlist/import`
+  - Purpose: Batch import plates via CSV.
+  - Role: ADMIN
 
-### `GET /cameras/{id}`
-- **Purpose**: Get specific camera details.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: Camera object
-- **Status Codes**: 200 OK, 404 Not Found
+## Alerts
+- `GET /api/v1/alerts/`
+  - Purpose: List generated alerts.
+  - Role: VIEWER
+- `POST /api/v1/alerts/{alert_id}/action`
+  - Purpose: Transition alert status (`ACKNOWLEDGE`, `RESOLVE`).
+  - Role: OPERATOR
 
-### `PATCH /cameras/{id}`
-- **Purpose**: Update camera configuration.
-- **Auth**: Required
-- **Role**: Admin
-- **Request Body**: Partial camera fields
-- **Response**: Updated camera object
-- **Status Codes**: 200 OK, 404 Not Found
+## Statistics & Dashboard
+- `GET /api/v1/stats/overview`
+  - Purpose: Fetch aggregate counts for dashboard charts.
+  - Role: VIEWER
 
-### `POST /cameras/{id}/disable`
-- **Purpose**: Disable a camera.
-- **Auth**: Required
-- **Role**: Admin
-- **Response**: `{"status": "disabled"}`
-- **Status Codes**: 200 OK
+## Entity Search & Trace
+- `GET /api/v1/search/entities`
+  - Purpose: Execute a wildcard search against `vehicle_number`.
+  - Role: VIEWER
+- `GET /api/v1/trace/vehicle/{vehicle_number}`
+  - Purpose: Return chronological sequence of camera sightings for polyline mapping.
+  - Role: VIEWER
 
-### `POST /cameras/{id}/enable`
-- **Purpose**: Enable a camera.
-- **Auth**: Required
-- **Role**: Admin
-- **Response**: `{"status": "enabled"}`
-- **Status Codes**: 200 OK
+## Export
+- `GET /api/v1/export/events` & `GET /api/v1/export/alerts`
+  - Purpose: Export historical tabular data as `.csv`.
+  - Role: OPERATOR
 
-### `GET /cameras/{id}/audit`
-- **Purpose**: Get audit logs for a specific camera.
-- **Auth**: Required
-- **Role**: Admin
-- **Response**: List of audit logs
-- **Status Codes**: 200 OK
+## Audit
+- `GET /audit/`
+  - Purpose: Return immutable administrative action logs.
+  - Role: ADMIN
 
-### `GET /cameras/{id}/playback`
-- **Purpose**: Get secure token/URL for stream playback (HLS/WebRTC).
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: `{"playback_url": "..."}`
-- **Status Codes**: 200 OK
-
-### `POST /cameras/{id}/heartbeat`
-- **Purpose**: Receive heartbeat from a camera or adapter.
-- **Auth**: Required (Service/Adapter token)
-- **Role**: System
-- **Request Body**: `{"status": "online/offline", "timestamp": "..."}`
-- **Response**: `{"acknowledged": true}`
-- **Status Codes**: 200 OK
-
-## EVENTS
-
-### `POST /events`
-- **Purpose**: Receive a single detection event.
-- **Auth**: Required (Service token)
-- **Role**: System
-- **Request Body**: Detection event schema
-- **Response**: `{"event_id": "..."}`
-- **Status Codes**: 201 Created, 409 Conflict (Duplicate)
-
-### `POST /events/batch`
-- **Purpose**: Receive multiple detection events.
-- **Auth**: Required (Service token)
-- **Role**: System
-- **Request Body**: List of detection events
-- **Response**: `{"processed": N, "duplicates": M}`
-- **Status Codes**: 200 OK
-
-### `GET /events`
-- **Purpose**: List historical events with filtering.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: List of events with pagination
-- **Status Codes**: 200 OK
-
-## WATCHLIST
-
-### `GET /watchlist`
-- **Purpose**: List watchlist entries.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: List of watchlist objects
-- **Status Codes**: 200 OK
-
-### `POST /watchlist`
-- **Purpose**: Add entry to watchlist.
-- **Auth**: Required
-- **Role**: Admin
-- **Request Body**: Watchlist details (identifier, category, etc.)
-- **Response**: Created entry
-- **Status Codes**: 201 Created
-
-### `PATCH /watchlist/{id}`
-- **Purpose**: Update watchlist entry.
-- **Auth**: Required
-- **Role**: Admin
-- **Request Body**: Partial updates
-- **Response**: Updated entry
-- **Status Codes**: 200 OK
-
-### `DELETE /watchlist/{id}`
-- **Purpose**: Remove watchlist entry.
-- **Auth**: Required
-- **Role**: Admin
-- **Response**: `{"status": "deleted"}`
-- **Status Codes**: 204 No Content
-
-### `POST /watchlist/import`
-- **Purpose**: Bulk import watchlist entries.
-- **Auth**: Required
-- **Role**: Admin
-- **Request Body**: CSV or JSON array
-- **Response**: `{"imported": N}`
-- **Status Codes**: 200 OK
-
-## ALERTS
-
-### `GET /alerts`
-- **Purpose**: List alerts.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: List of alerts
-- **Status Codes**: 200 OK
-
-### `GET /alerts/{id}`
-- **Purpose**: Get specific alert details.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: Alert object
-- **Status Codes**: 200 OK
-
-### `POST /alerts/{id}/acknowledge`
-- **Purpose**: Mark alert as acknowledged.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: Updated alert
-- **Status Codes**: 200 OK
-
-### `POST /alerts/{id}/resolve`
-- **Purpose**: Mark alert as resolved.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: Updated alert
-- **Status Codes**: 200 OK
-
-### `POST /alerts/{id}/false-positive`
-- **Purpose**: Mark alert as false positive.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: Updated alert
-- **Status Codes**: 200 OK
-
-## ENTITY / VEHICLE SEARCH
-
-### `GET /entities/vehicles/{plate}/trace`
-- **Purpose**: Get geographic and chronological trace of a vehicle.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: List of events/coordinates sorted by time
-- **Status Codes**: 200 OK
-
-### `GET /search?q=`
-- **Purpose**: Global search (cameras, vehicles, alerts).
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: Mixed search results
-- **Status Codes**: 200 OK
-
-## STATISTICS
-
-### `GET /stats/overview`
-- **Purpose**: Get dashboard statistics.
-- **Auth**: Required
-- **Role**: Operator/Admin
-- **Response**: Counts of active cameras, alerts today, etc.
-- **Status Codes**: 200 OK
-
-## AUDIT
-
-### `GET /audit-logs`
-- **Purpose**: List system audit logs.
-- **Auth**: Required
-- **Role**: Admin
-- **Response**: List of audit entries
-- **Status Codes**: 200 OK
-
-## SYSTEM
-
-### `GET /health`
-- **Purpose**: Basic API health check.
-- **Auth**: None
-- **Response**: `{"status": "ok"}`
-- **Status Codes**: 200 OK
-
-### `GET /metrics`
-- **Purpose**: Prometheus metrics.
-- **Auth**: None (or internal only)
-- **Response**: Text metrics
-- **Status Codes**: 200 OK
-
-## REAL-TIME
-
-### `WS /ws`
-- **Purpose**: Connect to WebSocket for real-time updates.
-- **Auth**: Token provided in connection URL or initial message.
-- **Role**: Operator/Admin
-- **Events**: Receives alerts, camera health, and live detections.
+## WebSocket
+- `WS /ws`
+  - Purpose: Subscribe to real-time events, alerts, and health transitions.
+  - Auth: Valid JWT token query parameter.
