@@ -1,0 +1,121 @@
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-okdriver}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-okdriver}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-okdriver}
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_SECRET=${JWT_SECRET:-supersecretjwtkeythatshouldbechangedinproduction}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - JWT_REFRESH_TOKEN_EXPIRE_DAYS=${JWT_REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      - DEMO_ADMIN_USERNAME=${DEMO_ADMIN_USERNAME:-admin}
+      - DEMO_ADMIN_PASSWORD=${DEMO_ADMIN_PASSWORD:-adminpass}
+      - DEMO_OPERATOR_USERNAME=${DEMO_OPERATOR_USERNAME:-operator}
+      - DEMO_OPERATOR_PASSWORD=${DEMO_OPERATOR_PASSWORD:-operatorpass}
+      - DEMO_VIEWER_USERNAME=${DEMO_VIEWER_USERNAME:-viewer}
+      - DEMO_VIEWER_PASSWORD=${DEMO_VIEWER_PASSWORD:-viewerpass}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "alembic upgrade head && 
+             python -m app.initial_data && 
+             uvicorn app.main:app --host 0.0.0.0 --port 8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    environment:
+      - VITE_API_URL=http://localhost:${BACKEND_PORT:-8000}
+    depends_on:
+      - backend
+
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    ports:
+      - "8554:8554"
+      - "1935:1935"
+      - "8888:8888"
+      - "8889:8889"
+    volumes:
+      - ./docker/mediamtx/mediamtx.yml:/mediamtx.yml
+
+  simulator:
+    build:
+      context: ./simulator
+    environment:
+      - ANALYTICS_API_KEY=${ANALYTICS_API_KEY:-test}
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+
+  ffmpeg-c001:
+    image: jrottenberg/ffmpeg:4.4-alpine
+    entrypoint: >
+      sh -c '
+      while true; do
+        echo "Starting ffmpeg RTSP loop for C001...";
+        ffmpeg -f lavfi -i "testsrc=duration=10:size=640x360:rate=30" -f lavfi -i "sine=frequency=1000:duration=10" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -f rtsp rtsp://mediamtx:8554/cam/C001;
+        sleep 5;
+      done
+      '
+    depends_on:
+      - mediamtx
+
+  ffmpeg-c002:
+    image: jrottenberg/ffmpeg:4.4-alpine
+    volumes:
+      - hls_data:/out
+    entrypoint: >
+      sh -c '
+      while true; do
+        echo "Starting ffmpeg HLS generation for C002...";
+        ffmpeg -f lavfi -i "smptebars=size=640x360:rate=30" -f lavfi -i "sine=frequency=440" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments /out/index.m3u8;
+        sleep 5;
+      done
+      '
+
+  hls-server:
+    image: nginx:alpine
+    ports:
+      - "8080:80"
+    volumes:
+      - hls_data:/usr/share/nginx/html
+      - ./docker/nginx/cors.conf:/etc/nginx/conf.d/default.conf
+
+volumes:
+  postgres_data: {}
+  hls_data: {}

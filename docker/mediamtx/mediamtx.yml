@@ -1,0 +1,7 @@
+paths:
+  all:
+    readUser: ""
+    readPass: ""
+hlsAlwaysRemux: yes
+hlsSegmentCount: 3
+hlsSegmentDuration: 2s\n
