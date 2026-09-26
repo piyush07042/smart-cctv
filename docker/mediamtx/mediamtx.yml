@@ -3,5 +3,6 @@ paths:
     readUser: ""
     readPass: ""
 hlsAlwaysRemux: yes
+hlsVariant: mpegts
 hlsSegmentCount: 3
-hlsSegmentDuration: 2s\n
+hlsSegmentDuration: 2s

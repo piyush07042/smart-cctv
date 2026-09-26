@@ -25,19 +25,28 @@ const icons = {
   CRITICAL_ALERT: createIcon('red'),
 };
 
+const getCoords = (c: any): [number, number] | null => {
+  if (!c) return null;
+  const latVal = c.latitude ?? c.lat;
+  const lngVal = c.longitude ?? c.lng;
+  if (latVal === null || latVal === undefined || lngVal === null || lngVal === undefined || latVal === '' || lngVal === '') return null;
+  const lat = typeof latVal === 'number' ? latVal : Number(latVal);
+  const lng = typeof lngVal === 'number' ? lngVal : Number(lngVal);
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+  return [lat, lng];
+};
+
 const MapBounds: React.FC<{ cameras: Camera[] }> = ({ cameras }) => {
   const map = useMap();
 
   useEffect(() => {
     if (cameras.length === 0) return;
     
-    const validCameras = cameras.filter(c => c.latitude !== null && c.longitude !== null);
-    if (validCameras.length === 0) return;
+    const validCoords = cameras.map(getCoords).filter((coords): coords is [number, number] => coords !== null);
+    if (validCoords.length === 0) return;
 
-    const bounds = L.latLngBounds(
-      validCameras.map(c => [c.latitude as number, c.longitude as number])
-    );
-    
+    const bounds = L.latLngBounds(validCoords);
     map.fitBounds(bounds, { padding: [50, 50] });
   }, [cameras, map]);
 
@@ -66,7 +75,7 @@ export const CameraMap: React.FC<CameraMapProps> = ({ cameras }) => {
     return c;
   });
 
-  const validCameras = mergedCameras.filter(c => c.latitude !== null && c.longitude !== null);
+  const validCameras = mergedCameras.filter(c => getCoords(c) !== null);
 
   const getMarkerIcon = (camera: Camera) => {
     if (activeAlertCameras.has(camera.camera_id)) return icons.CRITICAL_ALERT;
@@ -77,7 +86,7 @@ export const CameraMap: React.FC<CameraMapProps> = ({ cameras }) => {
   };
 
   return (
-    <div className="relative w-full h-full rounded-xl overflow-hidden border border-gray-800 shadow-lg">
+    <div className="relative w-full h-full rounded-xl overflow-hidden border border-green-200 shadow-lg">
       <MapContainer 
         center={defaultCenter} 
         zoom={7} 
@@ -95,46 +104,48 @@ export const CameraMap: React.FC<CameraMapProps> = ({ cameras }) => {
           chunkedLoading
           maxClusterRadius={50}
         >
-          {validCameras.map(camera => (
-            <Marker 
-              key={camera.id} 
-              position={[camera.latitude as number, camera.longitude as number]}
-              icon={getMarkerIcon(camera)}
-            >
+          {validCameras.map(camera => {
+            const coords = getCoords(camera)!;
+            return (
+              <Marker 
+                key={camera.id} 
+                position={coords}
+                icon={getMarkerIcon(camera)}
+              >
               <Popup className="camera-popup">
                 <div className="p-1 min-w-[200px]">
                   <div className="flex items-center justify-between border-b pb-2 mb-2">
-                    <h3 className="font-bold text-gray-900 m-0 leading-tight">{camera.name}</h3>
-                    <span className="text-xs font-mono bg-gray-100 text-gray-600 px-1 py-0.5 rounded">{camera.camera_id}</span>
+                    <h3 className="font-bold text-green-900 m-0 leading-tight">{camera.name}</h3>
+                    <span className="text-xs font-mono bg-green-100 text-green-600 px-1 py-0.5 rounded">{camera.camera_id}</span>
                   </div>
                   
-                  <div className="space-y-1 mb-3 text-sm text-gray-700">
+                  <div className="space-y-1 mb-3 text-sm text-green-700">
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Dept:</span>
+                      <span className="text-green-600">Dept:</span>
                       <span className="font-medium">{camera.department || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Zone:</span>
+                      <span className="text-green-600">Zone:</span>
                       <span className="font-medium">{camera.zone || 'N/A'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Status:</span>
+                      <span className="text-green-600">Status:</span>
                       <span className={`font-bold ${
                         camera.status === 'ONLINE' ? 'text-green-600' : 
-                        camera.status === 'DEGRADED' ? 'text-amber-600' : 'text-gray-600'
+                        camera.status === 'DEGRADED' ? 'text-amber-600' : 'text-green-600'
                       }`}>
                         {!camera.is_enabled ? 'DISABLED' : camera.status}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-500">Last Seen:</span>
+                      <span className="text-green-600">Last Seen:</span>
                       <span className="font-medium">{camera.last_heartbeat ? new Date(camera.last_heartbeat).toLocaleTimeString() : 'N/A'}</span>
                     </div>
                   </div>
 
                   <button 
                     disabled
-                    className="w-full flex items-center justify-center gap-2 bg-gray-100 text-gray-400 py-1.5 rounded cursor-not-allowed border border-gray-200 text-sm font-medium"
+                    className="w-full flex items-center justify-center gap-2 bg-green-100 text-green-700 py-1.5 rounded cursor-not-allowed border border-green-200 text-sm font-medium"
                     title="Video playback available in Phase 5"
                   >
                     <Video className="w-4 h-4" /> View Feed
@@ -142,15 +153,16 @@ export const CameraMap: React.FC<CameraMapProps> = ({ cameras }) => {
                 </div>
               </Popup>
             </Marker>
-          ))}
+          );
+        })}
         </MarkerClusterGroup>
       </MapContainer>
       
       {validCameras.length === 0 && (
         <div className="absolute inset-0 z-[400] flex items-center justify-center pointer-events-none bg-black/20 backdrop-blur-[1px]">
-          <div className="bg-gray-900/90 border border-gray-700 text-white px-6 py-4 rounded-lg shadow-xl pointer-events-auto">
+          <div className="bg-white/90 border border-green-300 text-green-900 px-6 py-4 rounded-lg shadow-xl pointer-events-auto">
             <h3 className="text-lg font-medium mb-1">No Cameras with Coordinates</h3>
-            <p className="text-sm text-gray-400">Add coordinates to cameras to see them on the map.</p>
+            <p className="text-sm text-green-700">Add coordinates to cameras to see them on the map.</p>
           </div>
         </div>
       )}

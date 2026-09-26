@@ -1,7 +1,7 @@
 """Add CameraHealthEvent
 
 Revision ID: 0003
-Revises: 0002
+Revises: 0002_camera_phase3
 Create Date: 2026-09-24 17:32:00.000000
 
 """
@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = '0003'
-down_revision = '0002'
+down_revision = '0002_camera_phase3'
 branch_labels = None
 depends_on = None
 

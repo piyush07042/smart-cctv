@@ -32,11 +32,11 @@ export const Sidebar: React.FC = () => {
   const { user } = useAuthStore();
 
   return (
-    <aside className="w-64 bg-gray-900 text-gray-300 flex flex-col h-full shrink-0 border-r border-gray-800">
-      <div className="h-16 flex items-center px-6 border-b border-gray-800 shrink-0">
-        <h1 className="text-xl font-bold text-white tracking-wider flex items-center gap-2">
-          <ShieldAlert className="text-blue-500" />
-          okDriver CCTV
+    <aside className="w-64 bg-white text-green-800 flex flex-col h-full shrink-0 border-r border-green-200">
+      <div className="h-16 flex items-center px-6 border-b border-green-200 shrink-0">
+        <h1 className="text-xl font-bold text-green-900 tracking-wider flex items-center gap-2">
+          <ShieldAlert className="text-green-600" />
+          Smart CCTV
         </h1>
       </div>
       <nav className="flex-1 overflow-y-auto py-4">
@@ -52,8 +52,8 @@ export const Sidebar: React.FC = () => {
                     clsx(
                       'flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors text-sm font-medium',
                       isActive 
-                        ? 'bg-blue-600/10 text-blue-400' 
-                        : 'hover:bg-gray-800 hover:text-white'
+                        ? 'bg-green-600/10 text-green-700' 
+                        : 'hover:bg-green-100 hover:text-green-900'
                     )
                   }
                 >

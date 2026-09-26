@@ -11,6 +11,7 @@ import { WatchlistPage } from '../pages/WatchlistPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { EntitySearchPage } from '../pages/EntitySearchPage';
 import { VehicleTracePage } from '../pages/VehicleTracePage';
+import { AuditPage } from '../pages/AuditPage';
 import {
   AuditPlaceholder,
   SettingsPlaceholder

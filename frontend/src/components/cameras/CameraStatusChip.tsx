@@ -6,12 +6,12 @@ export const CameraStatusChip: React.FC<{ status: CameraStatus }> = ({ status })
   const getStyles = () => {
     switch (status) {
       case 'ONLINE':
-        return 'bg-green-500/10 text-green-400 border-green-500/20';
+        return 'bg-green-100 text-green-700 border-green-300';
       case 'DEGRADED':
         return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
       case 'OFFLINE':
       default:
-        return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+        return 'bg-green-100 text-green-700 border-green-300';
     }
   };
 
@@ -23,7 +23,7 @@ export const CameraStatusChip: React.FC<{ status: CameraStatus }> = ({ status })
         return 'bg-amber-500';
       case 'OFFLINE':
       default:
-        return 'bg-gray-500';
+        return 'bg-green-500';
     }
   };
 

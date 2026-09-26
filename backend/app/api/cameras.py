@@ -11,7 +11,7 @@ Endpoints:
   POST   /cameras/{camera_id}/disable  Admin only
   GET    /cameras/{camera_id}/audit    Admin/Operator — audit history
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, Header
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db

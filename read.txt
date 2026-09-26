@@ -1,0 +1,73 @@
+
+
+
+
+Viewed read.txt:1-5
+
+Here are all the commands you need, from a fresh start to full verification:
+
+---
+
+## 🚀 Full Server Run Commands
+
+### 📁 Step 1 — Navigate to project
+```powershell
+cd D:\okdriver-cctv-platform
+```
+
+---
+
+### ▶️ Step 2 — Start all containers
+```powershell
+docker compose up -d
+```
+
+---
+
+### 🔍 Step 3 — Check all containers are running
+```powershell
+docker compose ps -a
+```
+
+---
+
+### ✅ Step 4 — Verify backend health
+```powershell
+curl http://localhost:8000/health
+# Expected: {"status":"ok","database":"ok","redis":"ok"}
+```
+
+---
+
+### 🌐 Step 5 — Open in browser
+```
+http://localhost:5173        ← Frontend (React UI)
+http://localhost:8000/docs   ← Backend API (Swagger)
+```
+
+---
+
+### 🔄 Other useful commands
+
+| Purpose | Command |
+|---------|---------|
+| **Stop all** | `docker compose down` |
+| **View logs** | `docker compose logs -f` |
+| **View frontend logs** | `docker compose logs -f frontend` |
+| **View backend logs** | `docker compose logs -f backend` |
+| **Restart a service** | `docker compose restart frontend` |
+| **Rebuild frontend** | `docker compose build --no-cache frontend` |
+| **Rebuild everything** | `docker compose build --no-cache` |
+| **Full restart** | `docker compose down && docker compose up -d` |
+
+---
+
+### 🔑 Login Credentials (at http://localhost:5173)
+| Role | Username | Password |
+|------|----------|----------|
+| Admin | `admin` | `admin` |
+| Operator | `operator` | `operator` |
+| Viewer | `viewer` | `viewer` |
+
+
+

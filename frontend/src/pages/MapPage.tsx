@@ -12,7 +12,7 @@ export const MapPage: React.FC = () => {
   // In a real prod environment with 10k cameras, we'd need vector tiles or server-side clustering.
   const { cameras, isLoading } = useCameras({
     page: 1,
-    page_size: 1000,
+    page_size: 200,
     zone: zoneFilter || undefined,
     department: deptFilter || undefined
   });
@@ -22,15 +22,15 @@ export const MapPage: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-800 bg-gray-900 shrink-0 flex items-center justify-between">
-        <h1 className="text-xl font-bold text-white flex items-center gap-3">
+      <div className="p-4 border-b border-green-200 bg-white shrink-0 flex items-center justify-between">
+        <h1 className="text-xl font-bold text-green-900 flex items-center gap-3">
           GIS Map
-          {isLoading && <Loader2 className="w-4 h-4 animate-spin text-gray-500" />}
+          {isLoading && <Loader2 className="w-4 h-4 animate-spin text-green-600" />}
         </h1>
 
         <div className="flex gap-4">
           <select
-            className="bg-gray-950 border border-gray-700 rounded-md px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500"
+            className="bg-green-50 border border-green-300 rounded-md px-3 py-1.5 text-sm text-green-800 focus:outline-none focus:border-green-500"
             value={deptFilter}
             onChange={(e) => setDeptFilter(e.target.value)}
           >
@@ -40,7 +40,7 @@ export const MapPage: React.FC = () => {
             ))}
           </select>
           <select
-            className="bg-gray-950 border border-gray-700 rounded-md px-3 py-1.5 text-sm text-gray-300 focus:outline-none focus:border-blue-500"
+            className="bg-green-50 border border-green-300 rounded-md px-3 py-1.5 text-sm text-green-800 focus:outline-none focus:border-green-500"
             value={zoneFilter}
             onChange={(e) => setZoneFilter(e.target.value)}
           >
@@ -52,7 +52,7 @@ export const MapPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 bg-gray-950 p-4">
+      <div className="flex-1 min-h-0 bg-green-50 p-4">
         <CameraMap cameras={cameras} />
       </div>
     </div>

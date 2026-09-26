@@ -25,45 +25,45 @@ export const CamerasLivePage: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4 border-b border-gray-800 bg-gray-900 shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 border-b border-green-200 bg-white shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-white flex items-center gap-3">
-            <MonitorPlay className="w-5 h-5 text-blue-500" />
+          <h1 className="text-xl font-bold text-green-900 flex items-center gap-3">
+            <MonitorPlay className="w-5 h-5 text-green-600" />
             Live View Grid
-            {isLoading && <Loader2 className="w-4 h-4 animate-spin text-gray-500" />}
+            {isLoading && <Loader2 className="w-4 h-4 animate-spin text-green-600" />}
           </h1>
-          <p className="text-sm text-gray-400 mt-1">Real-time video monitoring</p>
+          <p className="text-sm text-green-700 mt-1">Real-time video monitoring</p>
         </div>
 
-        <div className="flex items-center gap-2 bg-gray-950 p-1 rounded-lg border border-gray-800">
+        <div className="flex items-center gap-2 bg-green-50 p-1 rounded-lg border border-green-200">
           <button
             onClick={() => setLayout('1x1')}
-            className={`px-3 py-1.5 text-xs font-medium rounded ${layout === '1x1' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-gray-200'}`}
+            className={`px-3 py-1.5 text-xs font-medium rounded ${layout === '1x1' ? 'bg-green-100 text-green-900' : 'text-green-700 hover:text-green-900'}`}
           >
             1x1
           </button>
           <button
             onClick={() => setLayout('2x2')}
-            className={`px-3 py-1.5 text-xs font-medium rounded ${layout === '2x2' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-gray-200'}`}
+            className={`px-3 py-1.5 text-xs font-medium rounded ${layout === '2x2' ? 'bg-green-100 text-green-900' : 'text-green-700 hover:text-green-900'}`}
           >
             2x2
           </button>
           <button
             onClick={() => setLayout('3x3')}
-            className={`px-3 py-1.5 text-xs font-medium rounded ${layout === '3x3' ? 'bg-gray-800 text-white' : 'text-gray-400 hover:text-gray-200'}`}
+            className={`px-3 py-1.5 text-xs font-medium rounded ${layout === '3x3' ? 'bg-green-100 text-green-900' : 'text-green-700 hover:text-green-900'}`}
           >
             3x3
           </button>
         </div>
       </div>
 
-      <div className="flex-1 bg-gray-950 p-4 overflow-y-auto">
+      <div className="flex-1 bg-green-50 p-4 overflow-y-auto">
         {error ? (
-          <div className="flex items-center justify-center h-full text-red-400 bg-red-500/10 rounded-lg p-6">
+          <div className="flex items-center justify-center h-full text-red-700 bg-red-100 rounded-lg p-6">
             Failed to load cameras for live view.
           </div>
         ) : cameras.length === 0 && !isLoading ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500">
+          <div className="flex flex-col items-center justify-center h-full text-green-600">
             <LayoutGrid className="w-12 h-12 mb-4 opacity-50" />
             <p>No cameras available in the registry.</p>
           </div>

@@ -9,12 +9,12 @@ import {
 } from 'lucide-react';
 
 const PlaceholderPage = ({ title, icon: Icon, phase }: { title: string, icon: any, phase: number }) => (
-  <div className="h-full flex flex-col items-center justify-center text-gray-400 p-8 text-center">
-    <div className="w-24 h-24 bg-gray-900 rounded-full flex items-center justify-center mb-6 border border-gray-800">
-      <Icon className="w-12 h-12 text-gray-500" />
+  <div className="h-full flex flex-col items-center justify-center text-green-700 p-8 text-center">
+    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center mb-6 border border-green-200">
+      <Icon className="w-12 h-12 text-green-600" />
     </div>
-    <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
-    <p className="max-w-md text-gray-500">
+    <h2 className="text-2xl font-bold text-green-900 mb-2">{title}</h2>
+    <p className="max-w-md text-green-600">
       This module is scheduled for implementation in Phase {phase} of the okDriver CCTV platform roadmap.
     </p>
   </div>

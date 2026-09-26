@@ -119,14 +119,14 @@ export const CameraForm: React.FC<CameraFormProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-gray-800 shrink-0">
-          <h2 className="text-xl font-bold text-white">
+      <div className="bg-white border border-green-200 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+        <div className="flex items-center justify-between p-6 border-b border-green-200 shrink-0">
+          <h2 className="text-xl font-bold text-green-900">
             {isEdit ? `Edit Camera: ${initialData.camera_id}` : 'Register New Camera'}
           </h2>
           <button 
             onClick={onCancel}
-            className="text-gray-400 hover:text-white transition-colors p-1 rounded-md hover:bg-gray-800"
+            className="text-green-700 hover:text-green-900 transition-colors p-1 rounded-md hover:bg-green-100"
           >
             <X className="w-6 h-6" />
           </button>
@@ -134,7 +134,7 @@ export const CameraForm: React.FC<CameraFormProps> = ({
 
         <div className="p-6 overflow-y-auto flex-1 custom-scrollbar">
           {errorMsg && (
-            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-md text-red-400 text-sm">
+            <div className="mb-6 p-4 bg-red-100 border border-red-300 rounded-md text-red-700 text-sm">
               {errorMsg}
             </div>
           )}
@@ -142,11 +142,11 @@ export const CameraForm: React.FC<CameraFormProps> = ({
           <form id="camera-form" onSubmit={handleSubmit} className="space-y-8">
             {/* Identity Section */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">Identity</h3>
+              <h3 className="text-sm font-semibold text-green-700 uppercase tracking-wider mb-4 border-b border-green-200 pb-2">Identity</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {!isEdit && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-1">Camera ID *</label>
+                    <label className="block text-sm font-medium text-green-800 mb-1">Camera ID *</label>
                     <input
                       type="text"
                       name="camera_id"
@@ -155,42 +155,42 @@ export const CameraForm: React.FC<CameraFormProps> = ({
                       required
                       pattern="^[A-Za-z0-9\-]{1,64}$"
                       title="Letters, digits, and hyphens only"
-                      className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                       placeholder="e.g. C001, CAM-01"
                     />
                   </div>
                 )}
                 <div className={isEdit ? "md:col-span-2" : ""}>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Name *</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Name *</label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                     placeholder="e.g. Main Gate Camera"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Department</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Department</label>
                   <input
                     type="text"
                     name="department"
                     value={formData.department}
                     onChange={handleChange}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                     placeholder="e.g. Traffic"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Zone</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Zone</label>
                   <input
                     type="text"
                     name="zone"
                     value={formData.zone}
                     onChange={handleChange}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                     placeholder="e.g. Zone-A"
                   />
                 </div>
@@ -199,15 +199,15 @@ export const CameraForm: React.FC<CameraFormProps> = ({
 
             {/* Hardware & Stream Section */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">Hardware & Stream</h3>
+              <h3 className="text-sm font-semibold text-green-700 uppercase tracking-wider mb-4 border-b border-green-200 pb-2">Hardware & Stream</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Camera Type</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Camera Type</label>
                   <select
                     name="camera_type"
                     value={formData.camera_type}
                     onChange={handleChange}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="FIXED">FIXED</option>
                     <option value="PTZ">PTZ</option>
@@ -216,12 +216,12 @@ export const CameraForm: React.FC<CameraFormProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Source Protocol</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Source Protocol</label>
                   <select
                     name="source_protocol"
                     value={formData.source_protocol}
                     onChange={handleChange}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="RTSP">RTSP</option>
                     <option value="ONVIF">ONVIF</option>
@@ -232,49 +232,49 @@ export const CameraForm: React.FC<CameraFormProps> = ({
                   </select>
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Stream Endpoint Reference</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Stream Endpoint Reference</label>
                   <input
                     type="text"
                     name="stream_endpoint_ref"
                     value={formData.stream_endpoint_ref}
                     onChange={handleChange}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                     placeholder="e.g. rtsp://camera.local/stream1"
                   />
-                  <p className="mt-1 text-xs text-gray-500">Do not include credentials in the URL. Use the fields below.</p>
+                  <p className="mt-1 text-xs text-green-600">Do not include credentials in the URL. Use the fields below.</p>
                 </div>
                 
                 {/* Credentials */}
-                <div className="md:col-span-2 bg-gray-950/50 p-4 rounded-md border border-gray-800">
+                <div className="md:col-span-2 bg-green-50/50 p-4 rounded-md border border-green-200">
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="text-sm font-medium text-gray-300">Stream Credentials</h4>
+                    <h4 className="text-sm font-medium text-green-800">Stream Credentials</h4>
                     {isEdit && initialData?.has_credentials && (
-                      <span className="text-xs bg-green-500/10 text-green-400 px-2 py-1 rounded border border-green-500/20">Credentials Configured</span>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded border border-green-300">Credentials Configured</span>
                     )}
                   </div>
-                  <p className="text-xs text-gray-500 mb-4">
+                  <p className="text-xs text-green-600 mb-4">
                     {isEdit ? 'Leave blank to keep existing credentials.' : 'Optional. Stored encrypted.'}
                   </p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1">Username</label>
+                      <label className="block text-xs font-medium text-green-700 mb-1">Username</label>
                       <input
                         type="text"
                         name="username"
                         value={formData.username}
                         onChange={handleChange}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full bg-white border border-green-300 rounded-md px-3 py-1.5 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                         autoComplete="off"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-400 mb-1">Password</label>
+                      <label className="block text-xs font-medium text-green-700 mb-1">Password</label>
                       <input
                         type="password"
                         name="password"
                         value={formData.password}
                         onChange={handleChange}
-                        className="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-1.5 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full bg-white border border-green-300 rounded-md px-3 py-1.5 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                         autoComplete="new-password"
                       />
                     </div>
@@ -285,12 +285,12 @@ export const CameraForm: React.FC<CameraFormProps> = ({
 
             {/* Location Section */}
             <div>
-              <div className="flex items-center justify-between mb-4 border-b border-gray-800 pb-2">
-                <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Location</h3>
+              <div className="flex items-center justify-between mb-4 border-b border-green-200 pb-2">
+                <h3 className="text-sm font-semibold text-green-700 uppercase tracking-wider">Location</h3>
                 <button 
                   type="button"
                   onClick={() => setShowMapPicker(!showMapPicker)}
-                  className="text-xs flex items-center gap-1 bg-gray-800 hover:bg-gray-700 text-gray-300 px-2 py-1 rounded transition-colors"
+                  className="text-xs flex items-center gap-1 bg-green-100 hover:bg-green-700 text-green-800 px-2 py-1 rounded transition-colors"
                 >
                   <MapPin className="w-3 h-3" />
                   {showMapPicker ? 'Close Map Picker' : 'Pick on Map'}
@@ -298,7 +298,7 @@ export const CameraForm: React.FC<CameraFormProps> = ({
               </div>
               
               {showMapPicker && (
-                <div className="mb-4 h-64 border border-gray-700 rounded-md overflow-hidden">
+                <div className="mb-4 h-64 border border-green-300 rounded-md overflow-hidden">
                   <MapLocationPicker 
                     initialLat={formData.latitude ? parseFloat(formData.latitude) : undefined}
                     initialLng={formData.longitude ? parseFloat(formData.longitude) : undefined}
@@ -309,7 +309,7 @@ export const CameraForm: React.FC<CameraFormProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Latitude</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Latitude</label>
                   <input
                     type="number"
                     step="any"
@@ -318,11 +318,11 @@ export const CameraForm: React.FC<CameraFormProps> = ({
                     onChange={handleChange}
                     min="-90"
                     max="90"
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Longitude</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Longitude</label>
                   <input
                     type="number"
                     step="any"
@@ -331,7 +331,7 @@ export const CameraForm: React.FC<CameraFormProps> = ({
                     onChange={handleChange}
                     min="-180"
                     max="180"
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                   />
                 </div>
               </div>
@@ -339,15 +339,15 @@ export const CameraForm: React.FC<CameraFormProps> = ({
 
             {/* Status Section */}
             <div>
-              <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">Status & Enablement</h3>
+              <h3 className="text-sm font-semibold text-green-700 uppercase tracking-wider mb-4 border-b border-green-200 pb-2">Status & Enablement</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-1">Initial Status</label>
+                  <label className="block text-sm font-medium text-green-800 mb-1">Initial Status</label>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleChange}
-                    className="w-full bg-gray-950 border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full bg-green-50 border border-green-300 rounded-md px-3 py-2 text-green-900 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500"
                   >
                     <option value="ONLINE">ONLINE</option>
                     <option value="DEGRADED">DEGRADED</option>
@@ -361,9 +361,9 @@ export const CameraForm: React.FC<CameraFormProps> = ({
                       name="is_enabled"
                       checked={formData.is_enabled}
                       onChange={handleChange}
-                      className="w-5 h-5 bg-gray-950 border-gray-700 rounded text-blue-500 focus:ring-blue-500 focus:ring-offset-gray-900"
+                      className="w-5 h-5 bg-green-50 border-green-300 rounded text-green-600 focus:ring-green-500 focus:ring-offset-green-900"
                     />
-                    <span className="text-sm font-medium text-gray-300">Camera Enabled</span>
+                    <span className="text-sm font-medium text-green-800">Camera Enabled</span>
                   </label>
                 </div>
               </div>
@@ -372,12 +372,12 @@ export const CameraForm: React.FC<CameraFormProps> = ({
           </form>
         </div>
 
-        <div className="p-6 border-t border-gray-800 flex justify-end gap-3 shrink-0 bg-gray-900 rounded-b-xl">
+        <div className="p-6 border-t border-green-200 flex justify-end gap-3 shrink-0 bg-white rounded-b-xl">
           <button
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md font-medium transition-colors"
+            className="px-4 py-2 bg-green-100 hover:bg-green-700 text-green-800 rounded-md font-medium transition-colors"
           >
             Cancel
           </button>
@@ -385,7 +385,7 @@ export const CameraForm: React.FC<CameraFormProps> = ({
             type="submit"
             form="camera-form"
             disabled={isLoading}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             {isLoading ? 'Saving...' : 'Save Camera'}

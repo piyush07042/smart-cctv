@@ -18,12 +18,13 @@ class RtspAdapter(SourceAdapter):
 
     def get_playback_url(self, client_ip: str) -> str:
         # MediaMTX exposes HLS at port 8888 by default.
-        # Use MEDIAMTX_HLS_URL or fallback.
-        # Example output: http://localhost:8888/cam/C001/index.m3u8
-        # In a real system we would append a signed JWT token here for security.
         base_url = os.getenv("MEDIAMTX_PUBLIC_URL", "http://localhost:8888")
-        # Ensure we don't expose any internal passwords
-        return f"{base_url}/cam/{self.camera_id}/index.m3u8"
+        stream_path = (
+            self.stream_endpoint_ref.rstrip('/').split('/')[-1]
+            if (self.stream_endpoint_ref and '/' in self.stream_endpoint_ref)
+            else self.camera_id.lower()
+        )
+        return f"{base_url}/{stream_path}/index.m3u8"
 
     def get_snapshot(self) -> bytes:
         # Stub

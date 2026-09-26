@@ -82,14 +82,14 @@ export const CamerasPage: React.FC = () => {
     <div className="p-6 h-full flex flex-col min-h-0">
       <div className="flex items-center justify-between mb-6 shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-white">Camera Registry</h1>
-          <p className="text-gray-400 mt-1">Manage and monitor all CCTV devices</p>
+          <h1 className="text-2xl font-bold text-green-900">Camera Registry</h1>
+          <p className="text-green-700 mt-1">Manage and monitor all CCTV devices</p>
         </div>
         
         <div className="flex gap-3">
           <button 
             onClick={() => refetch()} 
-            className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md transition-colors"
+            className="flex items-center gap-2 px-3 py-2 bg-green-100 hover:bg-green-700 text-green-800 rounded-md transition-colors"
             title="Refresh"
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
@@ -98,7 +98,7 @@ export const CamerasPage: React.FC = () => {
           {isAdmin && (
             <button
               onClick={() => setShowForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors shadow-lg shadow-blue-900/20"
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-md transition-colors shadow-lg shadow-blue-900/20"
             >
               <Plus className="w-5 h-5" />
               Add Camera
@@ -113,10 +113,10 @@ export const CamerasPage: React.FC = () => {
 
       <div className="flex-1 overflow-auto min-h-0 relative">
         {error ? (
-          <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
+          <div className="p-6 bg-red-100 border border-red-300 rounded-lg text-red-700">
             <h3 className="text-lg font-medium mb-1">Failed to load cameras</h3>
             <p>Please check your connection or try again later.</p>
-            <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-gray-800 rounded hover:bg-gray-700 text-gray-300">Retry</button>
+            <button onClick={() => refetch()} className="mt-4 px-4 py-2 bg-green-100 rounded hover:bg-green-700 text-green-800">Retry</button>
           </div>
         ) : (
           <div className="h-full flex flex-col">
@@ -129,25 +129,25 @@ export const CamerasPage: React.FC = () => {
             
             {/* Pagination Controls */}
             {pagination && pagination.pages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 bg-gray-900 border-t border-gray-800 shrink-0 mt-auto rounded-b-lg">
-                <div className="text-sm text-gray-400">
-                  Showing <span className="font-medium text-white">{((pagination.page - 1) * pagination.page_size) + 1}</span> to <span className="font-medium text-white">{Math.min(pagination.page * pagination.page_size, pagination.total)}</span> of <span className="font-medium text-white">{pagination.total}</span> results
+              <div className="flex items-center justify-between px-4 py-3 bg-white border-t border-green-200 shrink-0 mt-auto rounded-b-lg">
+                <div className="text-sm text-green-700">
+                  Showing <span className="font-medium text-green-900">{((pagination.page - 1) * pagination.page_size) + 1}</span> to <span className="font-medium text-green-900">{Math.min(pagination.page * pagination.page_size, pagination.total)}</span> of <span className="font-medium text-green-900">{pagination.total}</span> results
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     disabled={pagination.page <= 1}
                     onClick={() => handlePageChange(pagination.page - 1)}
-                    className="px-3 py-1 bg-gray-800 text-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700"
+                    className="px-3 py-1 bg-green-100 text-green-800 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-700"
                   >
                     Previous
                   </button>
-                  <span className="text-sm text-gray-400 mx-2">
+                  <span className="text-sm text-green-700 mx-2">
                     Page {pagination.page} of {pagination.pages}
                   </span>
                   <button
                     disabled={pagination.page >= pagination.pages}
                     onClick={() => handlePageChange(pagination.page + 1)}
-                    className="px-3 py-1 bg-gray-800 text-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700"
+                    className="px-3 py-1 bg-green-100 text-green-800 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-700"
                   >
                     Next
                   </button>
@@ -177,21 +177,21 @@ export const CamerasPage: React.FC = () => {
 
       {confirmStatusToggle && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-gray-900 border border-gray-800 rounded-xl shadow-2xl w-full max-w-md p-6">
-            <h2 className="text-xl font-bold text-white mb-2">Confirm Action</h2>
-            <p className="text-gray-400 mb-6">
-              Are you sure you want to <strong>{confirmStatusToggle.is_enabled ? 'disable' : 'enable'}</strong> camera <span className="text-white font-mono">{confirmStatusToggle.camera_id}</span> ({confirmStatusToggle.name})?
+          <div className="bg-white border border-green-200 rounded-xl shadow-2xl w-full max-w-md p-6">
+            <h2 className="text-xl font-bold text-green-900 mb-2">Confirm Action</h2>
+            <p className="text-green-700 mb-6">
+              Are you sure you want to <strong>{confirmStatusToggle.is_enabled ? 'disable' : 'enable'}</strong> camera <span className="text-green-900 font-mono">{confirmStatusToggle.camera_id}</span> ({confirmStatusToggle.name})?
             </p>
             <div className="flex justify-end gap-3">
               <button
                 onClick={() => setConfirmStatusToggle(null)}
-                className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md transition-colors"
+                className="px-4 py-2 bg-green-100 hover:bg-green-700 text-green-800 rounded-md transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleStatusToggle}
-                className={`px-4 py-2 text-white rounded-md transition-colors ${
+                className={`px-4 py-2 text-green-900 rounded-md transition-colors ${
                   confirmStatusToggle.is_enabled 
                     ? 'bg-red-600 hover:bg-red-700' 
                     : 'bg-green-600 hover:bg-green-700'

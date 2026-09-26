@@ -4,6 +4,11 @@ conftest.py — shared fixtures for Phase 2 tests.
 Uses SQLite in-memory with StaticPool so all connections share
 the same in-memory database (no PostgreSQL or Docker needed).
 """
+from sqlalchemy.dialects.sqlite.base import SQLiteTypeCompiler
+from sqlalchemy.dialects.postgresql import UUID
+
+SQLiteTypeCompiler.visit_UUID = lambda self, type_, **kw: "CHAR(36)"
+
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -13,6 +18,10 @@ from fastapi.testclient import TestClient
 # --- Patch settings BEFORE any other app import reads DATABASE_URL ---
 from app.core import config as cfg
 cfg.settings.DATABASE_URL = "sqlite://"
+
+
+
+
 
 class MockPipeline:
     def __init__(self, parent):

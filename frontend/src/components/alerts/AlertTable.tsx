@@ -9,10 +9,10 @@ interface Props {
 
 export const AlertTable: React.FC<Props> = ({ alerts, onViewDetails }) => {
   return (
-    <div className="bg-gray-900 border-x border-gray-800">
+    <div className="bg-white border-x border-green-200">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-gray-800/50 text-gray-400 text-xs uppercase tracking-wider">
+          <tr className="bg-green-100/50 text-green-700 text-xs uppercase tracking-wider">
             <th className="px-4 py-3 font-medium">Timestamp</th>
             <th className="px-4 py-3 font-medium">Status</th>
             <th className="px-4 py-3 font-medium">Severity</th>
@@ -21,10 +21,10 @@ export const AlertTable: React.FC<Props> = ({ alerts, onViewDetails }) => {
             <th className="px-4 py-3 font-medium">Repeats</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-800">
+        <tbody className="divide-y divide-green-800">
           {alerts.length === 0 ? (
             <tr>
-              <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+              <td colSpan={6} className="px-4 py-8 text-center text-green-600">
                 No alerts found.
               </td>
             </tr>
@@ -33,17 +33,17 @@ export const AlertTable: React.FC<Props> = ({ alerts, onViewDetails }) => {
               <tr 
                 key={alert.id} 
                 onClick={() => onViewDetails(alert)}
-                className="hover:bg-gray-800/50 transition-colors cursor-pointer group"
+                className="hover:bg-green-100/50 transition-colors cursor-pointer group"
               >
-                <td className="px-4 py-3 text-sm text-gray-300 whitespace-nowrap">
+                <td className="px-4 py-3 text-sm text-green-800 whitespace-nowrap">
                   {new Date(alert.created_at).toLocaleString()}
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium capitalize flex items-center gap-1.5 w-max ${
-                    alert.status === 'new' ? 'bg-red-500/20 text-red-400' :
-                    alert.status === 'acknowledged' ? 'bg-yellow-500/20 text-yellow-400' :
-                    alert.status === 'resolved' ? 'bg-green-500/20 text-green-400' :
-                    'bg-gray-500/20 text-gray-400'
+                    alert.status === 'new' ? 'bg-red-500/20 text-red-700' :
+                    alert.status === 'acknowledged' ? 'bg-yellow-500/20 text-yellow-700' :
+                    alert.status === 'resolved' ? 'bg-green-500/20 text-green-700' :
+                    'bg-green-500/20 text-green-700'
                   }`}>
                     {alert.status === 'new' && <AlertCircle className="w-3 h-3" />}
                     {alert.status === 'acknowledged' && <AlertTriangle className="w-3 h-3" />}
@@ -54,21 +54,21 @@ export const AlertTable: React.FC<Props> = ({ alerts, onViewDetails }) => {
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <span className={`px-2 py-0.5 rounded text-xs font-medium uppercase ${
-                    alert.severity === 'critical' ? 'text-red-400' :
+                    alert.severity === 'critical' ? 'text-red-700' :
                     alert.severity === 'high' ? 'text-orange-400' :
-                    alert.severity === 'medium' ? 'text-yellow-400' :
-                    'text-gray-400'
+                    alert.severity === 'medium' ? 'text-yellow-700' :
+                    'text-green-700'
                   }`}>
                     {alert.severity}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-white font-mono">
+                <td className="px-4 py-3 text-sm text-green-900 font-mono">
                   {alert.matched_identifier || '-'}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-300">
+                <td className="px-4 py-3 text-sm text-green-800">
                   {alert.camera_id}
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-400">
+                <td className="px-4 py-3 text-sm text-green-700">
                   {alert.repeat_count}
                 </td>
               </tr>

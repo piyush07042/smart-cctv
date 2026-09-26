@@ -43,6 +43,11 @@ services:
       - DEMO_OPERATOR_PASSWORD=${DEMO_OPERATOR_PASSWORD:-operatorpass}
       - DEMO_VIEWER_USERNAME=${DEMO_VIEWER_USERNAME:-viewer}
       - DEMO_VIEWER_PASSWORD=${DEMO_VIEWER_PASSWORD:-viewerpass}
+      - ANALYTICS_API_KEY=${ANALYTICS_API_KEY:-test-analytics-api-key}
+      - HEARTBEAT_API_KEY=${HEARTBEAT_API_KEY:-service-key-for-heartbeat}
+      - MEDIAMTX_PUBLIC_URL=http://localhost:8888
+    volumes:
+      - ./backend:/app
     depends_on:
       postgres:
         condition: service_healthy
@@ -60,6 +65,8 @@ services:
       - "${FRONTEND_PORT:-5173}:5173"
     environment:
       - VITE_API_URL=http://localhost:${BACKEND_PORT:-8000}
+    volumes:
+      - ./frontend/src:/app/src
     depends_on:
       - backend
 
@@ -77,19 +84,27 @@ services:
     build:
       context: ./simulator
     environment:
-      - ANALYTICS_API_KEY=${ANALYTICS_API_KEY:-test}
+      - ANALYTICS_API_KEY=${ANALYTICS_API_KEY:-analytics-service-key}
       - BACKEND_URL=http://backend:8000
+      - HEARTBEAT_API_KEY=${HEARTBEAT_API_KEY:-service-key-for-heartbeat}
     depends_on:
       - backend
 
   ffmpeg-c001:
     image: jrottenberg/ffmpeg:4.4-alpine
+    volumes:
+      - ./media/c001:/media/c001:ro
     entrypoint: >
       sh -c '
       while true; do
-        echo "Starting ffmpeg RTSP loop for C001...";
-        ffmpeg -f lavfi -i "testsrc=duration=10:size=640x360:rate=30" -f lavfi -i "sine=frequency=1000:duration=10" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -f rtsp rtsp://mediamtx:8554/cam/C001;
-        sleep 5;
+        if [ -f /media/c001/traffic_c001.mp4 ]; then
+          echo "Starting ffmpeg RTSP loop from /media/c001/traffic_c001.mp4 for C001...";
+          ffmpeg -stream_loop -1 -re -i /media/c001/traffic_c001.mp4 -c:v libx264 -preset veryfast -tune zerolatency -pix_fmt yuv420p -f rtsp rtsp://mediamtx:8554/c001;
+        else
+          echo "Starting ffmpeg RTSP fallback loop for C001...";
+          ffmpeg -f lavfi -i "testsrc=duration=3600:size=640x360:rate=25" -f lavfi -i "sine=frequency=1000:duration=3600" -c:v libx264 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -c:a aac -f rtsp rtsp://mediamtx:8554/c001;
+        fi;
+        sleep 2;
       done
       '
     depends_on:
@@ -99,12 +114,18 @@ services:
     image: jrottenberg/ffmpeg:4.4-alpine
     volumes:
       - hls_data:/out
+      - ./media/c002:/media/c002:ro
     entrypoint: >
       sh -c '
       while true; do
-        echo "Starting ffmpeg HLS generation for C002...";
-        ffmpeg -f lavfi -i "smptebars=size=640x360:rate=30" -f lavfi -i "sine=frequency=440" -c:v libx264 -preset ultrafast -pix_fmt yuv420p -c:a aac -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments /out/index.m3u8;
-        sleep 5;
+        if [ -f /media/c002/traffic_c002.mp4 ]; then
+          echo "Starting ffmpeg HLS loop from /media/c002/traffic_c002.mp4 for C002...";
+          ffmpeg -stream_loop -1 -re -i /media/c002/traffic_c002.mp4 -c:v libx264 -preset veryfast -tune zerolatency -pix_fmt yuv420p -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments+append_list /out/c002.m3u8;
+        else
+          echo "Starting ffmpeg HLS fallback generation for C002...";
+          ffmpeg -f lavfi -i "smptebars=size=640x360:rate=25" -f lavfi -i "sine=frequency=440:duration=3600" -c:v libx264 -preset ultrafast -tune zerolatency -pix_fmt yuv420p -c:a aac -f hls -hls_time 2 -hls_list_size 5 -hls_flags delete_segments+append_list /out/c002.m3u8;
+        fi;
+        sleep 2;
       done
       '
 

@@ -34,8 +34,8 @@ SEED_CAMERAS = [
         "latitude": 23.0172,
         "longitude": 72.6066,
         "camera_type": CameraType.ANPR.value,
-        "source_protocol": SourceProtocol.RTSP.value,
-        "stream_endpoint_ref": "rtsp://mediamtx:8554/c002",
+        "source_protocol": SourceProtocol.HLS.value,
+        "stream_endpoint_ref": "http://localhost:8080/c002.m3u8",
         "status": CameraStatus.ONLINE.value,
         "zone": "Zone-B",
         "is_enabled": True,
@@ -165,16 +165,32 @@ def seed_cameras(db=None):
     try:
         created = 0
         skipped = 0
+        updated = 0
         for data in SEED_CAMERAS:
             existing = db.query(Camera).filter(Camera.camera_id == data["camera_id"]).first()
             if existing:
-                skipped += 1
+                # Update coordinates if missing, or update stream_endpoint_ref if changed
+                changed = False
+                if existing.latitude is None and data.get("latitude") is not None:
+                    existing.latitude = data["latitude"]
+                    changed = True
+                if existing.longitude is None and data.get("longitude") is not None:
+                    existing.longitude = data["longitude"]
+                    changed = True
+                if existing.stream_endpoint_ref != data.get("stream_endpoint_ref"):
+                    existing.stream_endpoint_ref = data["stream_endpoint_ref"]
+                    existing.source_protocol = data["source_protocol"]
+                    changed = True
+                if changed:
+                    updated += 1
+                else:
+                    skipped += 1
                 continue
             cam = Camera(**data)
             db.add(cam)
             created += 1
         db.commit()
-        logger.info(f"Camera seed complete — created: {created}, skipped (already existed): {skipped}")
+        logger.info(f"Camera seed complete — created: {created}, updated: {updated}, skipped (unchanged): {skipped}")
     finally:
         if close_db:
             db.close()

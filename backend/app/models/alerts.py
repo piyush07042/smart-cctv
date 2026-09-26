@@ -17,6 +17,7 @@ class WatchlistEntry(Base):
     __tablename__ = "watchlist_entries"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    identifier_type = Column(String(64), nullable=False, default="vehicle") # vehicle | person | license_plate
     entity_type = Column(String(32), nullable=False, default="vehicle")  # vehicle | person | other
     identifier = Column(String(64), nullable=False, index=True)           # normalized plate or person ID
     category = Column(String(32), nullable=False)                         # stolen | blacklisted | wanted | missing

@@ -1,3 +1,9 @@
+"""
+Health / Heartbeat Simulator for Phase 6.
+Sends heartbeat metrics for C001 and C002 every 10 seconds.
+C001 → NORMAL (ONLINE)
+C002 → NORMAL (ONLINE)
+"""
 import requests
 import time
 import datetime
@@ -5,58 +11,55 @@ import os
 import random
 import logging
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 logger = logging.getLogger(__name__)
 
-API_URL = os.getenv("API_URL", "http://localhost:8000")
-API_KEY = os.getenv("HEARTBEAT_API_KEY", "service-key-for-heartbeat")
+# docker-compose passes BACKEND_URL; fall back for local runs
+BACKEND_URL = os.getenv("BACKEND_URL", os.getenv("API_URL", "http://backend:8000"))
+# Heartbeat API key must match backend settings.HEARTBEAT_API_KEY
+HEARTBEAT_API_KEY = os.getenv("HEARTBEAT_API_KEY", "service-key-for-heartbeat")
 
 CAMERAS = ["C001", "C002"]
-MODE = os.getenv("SIMULATOR_MODE", "NORMAL") # NORMAL, DEGRADED, STOPPED
 
-def send_heartbeat(camera_id: str):
-    if MODE == "STOPPED":
-        return
 
+def send_heartbeat(camera_id: str) -> None:
     now = datetime.datetime.now(datetime.timezone.utc)
-    
-    if MODE == "NORMAL":
-        fps = 25.0 + random.uniform(-1, 1)
-        latency = int(random.uniform(50, 100))
-        packet_loss = 0.0
-    elif MODE == "DEGRADED":
-        fps = 8.0 + random.uniform(-1, 1)
-        latency = int(random.uniform(800, 1500))
-        packet_loss = 8.0
-    else:
-        fps = 15.0
-        latency = 100
-        packet_loss = 0.0
+    fps = 25.0 + random.uniform(-1.5, 1.5)
+    latency = int(random.uniform(40, 120))
+    packet_loss = round(random.uniform(0.0, 0.5), 2)
 
     payload = {
         "timestamp": now.isoformat(),
-        "fps": fps,
+        "fps": round(fps, 2),
         "bitrate": 1800.0,
         "latency_ms": latency,
-        "packet_loss": packet_loss
+        "packet_loss": packet_loss,
     }
 
     try:
         resp = requests.post(
-            f"{API_URL}/api/cameras/{camera_id}/heartbeat",
+            f"{BACKEND_URL}/cameras/{camera_id}/heartbeat",
             json=payload,
-            headers={"Authorization": f"Bearer {API_KEY}"}
+            headers={"Authorization": f"Bearer {HEARTBEAT_API_KEY}"},
+            timeout=10,
         )
         if resp.status_code == 200:
-            logger.info(f"[{camera_id}] Heartbeat accepted: {resp.json()['status']}")
+            logger.info(f"[HB] {camera_id} → {resp.json().get('status', 'ok')}")
         else:
-            logger.warning(f"[{camera_id}] Heartbeat rejected: {resp.status_code} {resp.text}")
+            logger.warning(f"[HB] {camera_id} rejected: {resp.status_code} {resp.text[:200]}")
     except Exception as e:
-        logger.error(f"[{camera_id}] Heartbeat error: {e}")
+        logger.error(f"[HB] {camera_id} error: {e}")
 
-if __name__ == "__main__":
-    logger.info(f"Starting Health Simulator in mode {MODE}...")
+
+def run_loop() -> None:
+    """Public entry point called from main.py background thread."""
+    logger.info(f"Health Simulator started → {BACKEND_URL}")
+    logger.info(f"Heartbeat key: {HEARTBEAT_API_KEY[:8]}...")
     while True:
         for cam in CAMERAS:
             send_heartbeat(cam)
         time.sleep(10)
+
+
+if __name__ == "__main__":
+    run_loop()

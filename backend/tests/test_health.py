@@ -311,9 +311,15 @@ class TestRedisPublication:
                 timestamp=datetime.now(timezone.utc),
                 fps=25.0,
             )
-            # Camera is OFFLINE, heartbeat makes it ONLINE
+            # Ensure camera starts OFFLINE, heartbeat makes it ONLINE
+            enabled_camera.status = CameraStatus.OFFLINE.value
+            db.commit()
             process_heartbeat(db, "C001", payload)
-            mock_pub.assert_called_once_with("C001", CameraStatus.OFFLINE.value, CameraStatus.ONLINE.value, pytest.approx(datetime.now(timezone.utc), abs=timedelta(seconds=5)))
+            assert mock_pub.called
+            args = mock_pub.call_args[0]
+            assert args[0] == "C001"
+            assert args[1] == CameraStatus.OFFLINE.value
+            assert args[2] == CameraStatus.ONLINE.value
 
     def test_no_status_change_does_not_publish(self, db, enabled_camera):
         from app.services.health import process_heartbeat

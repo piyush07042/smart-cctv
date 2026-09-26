@@ -91,13 +91,13 @@ export const AlertsPage: React.FC = () => {
     <div className="p-6 h-full flex flex-col min-h-0">
       <div className="flex items-center justify-between mb-6 shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-white">Active Alerts</h1>
-          <p className="text-gray-400 mt-1">Review and manage watchlist detections</p>
+          <h1 className="text-2xl font-bold text-green-900">Active Alerts</h1>
+          <p className="text-green-700 mt-1">Review and manage watchlist detections</p>
         </div>
         
         <button 
           onClick={() => refetch()} 
-          className="flex items-center gap-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-md transition-colors"
+          className="flex items-center gap-2 px-3 py-2 bg-green-100 hover:bg-green-700 text-green-800 rounded-md transition-colors"
         >
           <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
           Refresh
@@ -110,7 +110,7 @@ export const AlertsPage: React.FC = () => {
 
       <div className="flex-1 overflow-auto min-h-0 relative">
         {error ? (
-          <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400">
+          <div className="p-6 bg-red-100 border border-red-300 rounded-lg text-red-700">
             <h3 className="text-lg font-medium mb-1">Failed to load alerts</h3>
             <p>Please check your connection or try again later.</p>
           </div>
@@ -122,25 +122,25 @@ export const AlertsPage: React.FC = () => {
             />
             
             {pagination && pagination.pages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 bg-gray-900 border border-t-0 border-gray-800 shrink-0 mt-auto rounded-b-lg">
-                <div className="text-sm text-gray-400">
-                  Showing <span className="font-medium text-white">{((pagination.page - 1) * pagination.page_size) + 1}</span> to <span className="font-medium text-white">{Math.min(pagination.page * pagination.page_size, pagination.total)}</span> of <span className="font-medium text-white">{pagination.total}</span> results
+              <div className="flex items-center justify-between px-4 py-3 bg-white border border-t-0 border-green-200 shrink-0 mt-auto rounded-b-lg">
+                <div className="text-sm text-green-700">
+                  Showing <span className="font-medium text-green-900">{((pagination.page - 1) * pagination.page_size) + 1}</span> to <span className="font-medium text-green-900">{Math.min(pagination.page * pagination.page_size, pagination.total)}</span> of <span className="font-medium text-green-900">{pagination.total}</span> results
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     disabled={pagination.page <= 1}
                     onClick={() => handlePageChange(pagination.page - 1)}
-                    className="px-3 py-1 bg-gray-800 text-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 text-sm"
+                    className="px-3 py-1 bg-green-100 text-green-800 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-700 text-sm"
                   >
                     Previous
                   </button>
-                  <span className="text-sm text-gray-400 mx-2">
+                  <span className="text-sm text-green-700 mx-2">
                     Page {pagination.page} of {pagination.pages}
                   </span>
                   <button
                     disabled={pagination.page >= pagination.pages}
                     onClick={() => handlePageChange(pagination.page + 1)}
-                    className="px-3 py-1 bg-gray-800 text-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-700 text-sm"
+                    className="px-3 py-1 bg-green-100 text-green-800 rounded disabled:opacity-50 disabled:cursor-not-allowed hover:bg-green-700 text-sm"
                   >
                     Next
                   </button>

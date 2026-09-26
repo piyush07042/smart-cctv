@@ -16,17 +16,17 @@ export const CameraFilters: React.FC<CameraFiltersProps> = ({
   availableZones = ['Zone-A', 'Zone-B', 'Zone-C', 'Zone-D', 'Zone-X', 'Gandhinagar-North', 'Gandhinagar-South', 'Vadodara-Central', 'Mobile']
 }) => {
   return (
-    <div className="bg-gray-900 border border-gray-800 rounded-lg p-4 mb-6 space-y-4">
+    <div className="bg-white border border-green-200 rounded-lg p-4 mb-6 space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
         
         {/* Search */}
         <div className="lg:col-span-2 relative">
           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <Search className="h-4 w-4 text-gray-500" />
+            <Search className="h-4 w-4 text-green-600" />
           </div>
           <input
             type="text"
-            className="block w-full pl-10 pr-3 py-2 border border-gray-700 rounded-md leading-5 bg-gray-950 text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors"
+            className="block w-full pl-10 pr-3 py-2 border border-green-300 rounded-md leading-5 bg-green-50 text-green-800 placeholder-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm transition-colors"
             placeholder="Search by ID or Name..."
             value={filters.search || ''}
             onChange={(e) => onChange({ search: e.target.value })}
@@ -36,7 +36,7 @@ export const CameraFilters: React.FC<CameraFiltersProps> = ({
         {/* Status */}
         <div>
           <select
-            className="block w-full pl-3 pr-10 py-2 text-base border border-gray-700 bg-gray-950 text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors appearance-none"
+            className="block w-full pl-3 pr-10 py-2 text-base border border-green-300 bg-green-50 text-green-800 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md transition-colors appearance-none"
             value={filters.status || ''}
             onChange={(e) => onChange({ status: e.target.value || undefined })}
           >
@@ -50,7 +50,7 @@ export const CameraFilters: React.FC<CameraFiltersProps> = ({
         {/* Department */}
         <div>
           <select
-            className="block w-full pl-3 pr-10 py-2 text-base border border-gray-700 bg-gray-950 text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors appearance-none"
+            className="block w-full pl-3 pr-10 py-2 text-base border border-green-300 bg-green-50 text-green-800 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md transition-colors appearance-none"
             value={filters.department || ''}
             onChange={(e) => onChange({ department: e.target.value || undefined })}
           >
@@ -64,7 +64,7 @@ export const CameraFilters: React.FC<CameraFiltersProps> = ({
         {/* Zone */}
         <div>
           <select
-            className="block w-full pl-3 pr-10 py-2 text-base border border-gray-700 bg-gray-950 text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors appearance-none"
+            className="block w-full pl-3 pr-10 py-2 text-base border border-green-300 bg-green-50 text-green-800 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md transition-colors appearance-none"
             value={filters.zone || ''}
             onChange={(e) => onChange({ zone: e.target.value || undefined })}
           >
@@ -78,7 +78,7 @@ export const CameraFilters: React.FC<CameraFiltersProps> = ({
         {/* Protocol */}
         <div>
           <select
-            className="block w-full pl-3 pr-10 py-2 text-base border border-gray-700 bg-gray-950 text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors appearance-none"
+            className="block w-full pl-3 pr-10 py-2 text-base border border-green-300 bg-green-50 text-green-800 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md transition-colors appearance-none"
             value={filters.source_protocol || ''}
             onChange={(e) => onChange({ source_protocol: e.target.value || undefined })}
           >
@@ -95,7 +95,7 @@ export const CameraFilters: React.FC<CameraFiltersProps> = ({
         {/* Enabled */}
         <div>
           <select
-            className="block w-full pl-3 pr-10 py-2 text-base border border-gray-700 bg-gray-950 text-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md transition-colors appearance-none"
+            className="block w-full pl-3 pr-10 py-2 text-base border border-green-300 bg-green-50 text-green-800 focus:outline-none focus:ring-1 focus:ring-green-500 focus:border-green-500 sm:text-sm rounded-md transition-colors appearance-none"
             value={filters.is_enabled === undefined ? '' : String(filters.is_enabled)}
             onChange={(e) => {
               const val = e.target.value;

@@ -45,6 +45,9 @@ def _seed_camera(client, admin_headers) -> str:
     return cam_id
 
 
+from app.core.config import settings
+
+
 def _seed_event(client, cam_id: str, plate: str = "GJ01XX0001"):
     """Ingest a test ANPR event. Uses the analytics API key."""
     now_utc = datetime.now(timezone.utc).isoformat()
@@ -54,7 +57,7 @@ def _seed_event(client, cam_id: str, plate: str = "GJ01XX0001"):
         "event_type": "anpr",
         "vehicle_number": plate,
         "confidence": 0.95,
-    }, headers={"X-Analytics-Key": "analytics-service-key"})
+    }, headers={"X-Analytics-Key": settings.ANALYTICS_API_KEY})
     assert resp.status_code in (200, 202), resp.text
     return resp.json()
 
